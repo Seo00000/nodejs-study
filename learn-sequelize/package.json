@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "clean-css": "^4.1.11",
     "cookie-parser": "~1.4.4",
     "core-util-is": "^1.0.2",
     "debug": "~2.6.9",
