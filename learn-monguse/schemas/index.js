@@ -5,6 +5,27 @@ module.exports = () => {
         if(process.env.NODE_ENV !== 'production') {
             mongoose.set('debug', true);
         }
-    }
+        mongoose.connect('mongodb://testAdmin:test123@localhost:27017/admin', {
+            dbName: 'nodejs',    
+        }, (error) => {
+            if(error){
+                console.log('몽고디비 연결 에러', error);
+            } else {
+                console.log('몽고디비 연결 성공');
+            }
+        });
+    };
+    connect();
+
+    mongoose.connection.on('error', (error) => {
+        console.error('몽고디비 연결 에러', error);
+    });
+    mongoose.connection.on('disconnected', () => {
+        console.error('몽고디비 연결이 끊겼습니다. 연결을 재시도합니다.');
+        connect();
+    });
+
+    require('./users');
+    require('./comments');
 }
-//https://thebook.io/006982/ch08/06/01-01/ 진행중 commit
+//https://thebook.io/006982/ch08/06/01-01/ 
