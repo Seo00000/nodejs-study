@@ -1,4 +1,36 @@
-'use strict';
+const Sequelize = require('sequelize');
+const env = process.env.NODE_ENV || 'development';
+const config = require('../config/config')[env];
+const db = {};
+
+const sequelize = new Sequelize(
+  config.database, config.username, config.password, config,
+);
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+db.User = require('./user')(sequelize, Sequelize);
+db.Post = require('./post')(sequelize, Sequelize);
+db.Hashtag = require('./hashtag')(sequelize, Sequelize);
+
+db.User.hasMany(db.Post);
+db.Post.belongsTo(db.User); //1:N
+db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
+db.Hashtag.belongsToMany(db.Post, { through: 'PostHashtag' }); //N:M
+db.User.belongsToMany(db.User, {
+  foreignKey: 'followingId',
+  as: 'Followers',
+  through: 'Follow',
+});
+db.User.belongsToMany(db.User, {
+  foreignKey: 'followerId',
+  as: 'Followings',
+  through: 'Follow',
+}); //N:M
+
+module.exports = db;
+
+/*'use strict';
 
 const fs = require('fs');
 const path = require('path');
@@ -35,3 +67,4 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+*/
