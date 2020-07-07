@@ -8,7 +8,7 @@ module.exports = (passport) => {
         callbackURL: '/auth/kakao/callback',
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            const exUser = await User.find({ where: { snsId: profile.id, provider: 'kakao' } }); // 기존에 카카오로 로그인한 사용자가 있는지 조회
+            const exUser = await User.findOne({ where: { snsId: profile.id, provider: 'kakao' } }); // 기존에 카카오로 로그인한 사용자가 있는지 조회
             if (exUser) {
                 done(null, exUser);
             } else { // 없다면 회원가입

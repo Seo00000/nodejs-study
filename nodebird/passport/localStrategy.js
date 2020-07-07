@@ -9,7 +9,7 @@ module.exports = (passport) => {
         passwordField: 'password',
     }, async (email, password, done) => { // 실제 전략을 수행함. 세번째 매개변수인 done 함수는 passport.authenticate의 콜백 함수.
         try {
-            const exUser = await User.find({ where: { email } });
+            const exUser = await User.findOne({ where: { email } });
             if (exUser) {
                 const result = await bcrypt.compare(password, exUser.password);
                 if (result) {

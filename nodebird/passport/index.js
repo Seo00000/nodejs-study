@@ -1,19 +1,29 @@
 const local = require('./localStrategy');
-const kakao = require('./kakaoStrategy.js');
+const kakao = require('./kakaoStrategy');
 const { User } = require('../models');
 
 module.exports = (passport) => {
-    passport.serializeUser((user, done) => { //사용자 정보를 세션에 아이디로 저장함
-        done(null, user.id); //첫번째 인자는 에러발생시 사용
-    });
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
 
-    passport.deserializeUser((id, done) => { //세션에 저장한 아이디를 통해 사용자 정보 객체를 불러옴
-        User.fineOne({ where: { id } })
-            .then(user => done(null, user))
-            .catch(err => done(err));
-    });
+  passport.deserializeUser((id, done) => {
+    User.findOne({
+      where: { id },
+      include: [{
+        model: User,
+        attributes: ['id', 'nick'],
+        as: 'Followers',
+      }, {
+        model: User,
+        attributes: ['id', 'nick'],
+        as: 'Followings',
+      }],
+    })
+      .then(user => done(null, user))
+      .catch(err => done(err));
+  });
 
-    local(passport);
-    kakao(passport);
-}
-
+  local(passport);
+  kakao(passport);
+};
