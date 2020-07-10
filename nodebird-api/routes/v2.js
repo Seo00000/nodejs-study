@@ -1,14 +1,12 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
-const { verifyToken, deprecated } = require('./middlewares');
+const { verifyToken, apiLimiter } = require('./middlewares');
 const { Domain, User, Post, Hashtag } = require('../models');
 
 const router = express.Router();
 
-router.use(deprecated);
-
-router.post('/token', async (req, res) => {
+router.post('/token', apiLimiter, async (req, res) => {
     const { clientSecret } = req.body;
     try {
         const domain = await Domain.findOne({
@@ -18,7 +16,6 @@ router.post('/token', async (req, res) => {
                 attribute: ['nick', 'id'],
             },
         });
-        // console.log(domain);
 
         if (!domain) {
             return res.status(401).json({
@@ -30,7 +27,7 @@ router.post('/token', async (req, res) => {
             id: domain.user.id,
             nick: domain.user.nick, //첫번째 인자: 토큰의 내용(아이디, 닉네임)
         }, process.env.JWT_SECRET, {
-            expiresIn: '1m', // 유효기간 : 1분
+            expiresIn: '30m', // 유효기간 : 1분
             issuer: 'nodebird', // 발급자
         });
         return res.json({
@@ -47,11 +44,11 @@ router.post('/token', async (req, res) => {
     }
 });
 
-router.get('/test', verifyToken, (req, res) => {
+router.get('/test', verifyToken, apiLimiter, (req, res) => {
     res.json(req.decoded);
 });
 
-router.get('/posts/my', verifyToken, (req, res) => {
+router.get('/posts/my', apiLimiter, verifyToken, (req, res) => {
     Post.findAll({ where: { userId: req.decoded.id } })
         .then((posts) => {
             console.log(posts);
@@ -69,7 +66,7 @@ router.get('/posts/my', verifyToken, (req, res) => {
         });
 });
 
-router.get('/posts/hashtag/:title', verifyToken, async (req, res) => {
+router.get('/posts/hashtag/:title', verifyToken, apiLimiter, async (req, res) => {
     try {
         const hashtag = await Hashtag.findOne({ where: { title: req.params.title } });
         if (!hashtag) {
