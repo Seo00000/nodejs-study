@@ -50,6 +50,34 @@ router.get('/search/:hashtag', async (req, res, next) => {
   }
 });
 
+router.get('/followings', async (req, res, next) => {
+  try {
+    const result = await request(
+      req, `/followings`,
+    );
+    res.json(result.data);
+  } catch (error) {
+    if (error.code) {
+      console.error(error);
+      next(error);
+    }
+  }
+});
+
+router.get('/followers', async (req, res, next) => {
+  try {
+    const result = await request(
+      req, `/followers`,
+    );
+    res.json(result.data);
+  } catch (error) {
+    if (error.code) {
+      console.error(error);
+      next(error);
+    }
+  }
+});
+
 // router.get('/test', async (req, res, next) => {
 //   try {
 //     if (!req.session.jwt) { // 세션에 토큰이 없으면
