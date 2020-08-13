@@ -1,11 +1,16 @@
 const SocketIO = require('socket.io');
+const axios = require('axios');
 
-module.exports = (server, app) => {
+module.exports = (server, app, sessionMiddleware) => {
     const io = SocketIO(server, { path: '/socket.io' });
 
     app.set('io', io); //라우터에서 io 객체를 쓸 수 있게 함
     const room = io.of('/room'); // Socket.io에 네임스페이스를 부여하는 메서드. 같은 네임스페이스끼리만 데이터를 전달함.
     const chat = io.of('/chat');
+    io.use((socket, next) => { // io.use 메서드에 미들웨어 장착. 이 부분은 모든 웹소켓 연결시마다 실행됨.
+        sessionMiddleware(socket.request, socket.request.res, next); 
+        //세션 미들웨어에 요청 객체, 응답 객체, next 함수를 인자로 넣어주면 됨.
+    });
     room.on('connection', (socket) => {
         console.log('room 네임스페이스에 접속');
         socket.on('disconnect', () => {
