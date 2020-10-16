@@ -1,22 +1,17 @@
 const Sequelize = require('sequelize');
 
-module.exports = class User extends Sequelize.Model {
+module.exports = class Good extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            email: {
+            name: {
                 type: Sequelize.STRING(40),
                 allowNull: false,
-                unique: true,
             },
-            nick: {
-                type: Sequelize.STRING(15),
-                allowNull: false,
-            },
-            password: {
-                type: Sequelize.STRING(100),
+            img: {
+                type: Sequelize.STRING(200),
                 allowNull: true,
             },
-            money: {
+            price: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 defaultValue: 0,
@@ -25,14 +20,15 @@ module.exports = class User extends Sequelize.Model {
             sequelize,
             timestamps: true,
             paranoid: true,
-            modelName: 'User',
-            tableName: 'users',
+            modelName: 'Good',
+            tableName: 'goods',
             charset: 'utf8',
             collate: 'utf8_general_ci',
         });
     }
-
-    static associations(db) {
-        db.User.hasMany(db.Auction); //1:n (user: auction)
+    static associate(db) {
+        db.Good.belongsTo(db.User, { as: 'Owner' }); //사용자가 여러상품 등록(등록한 상품)
+        db.Good.belongsTo(db.User, { as: 'Sold' }); //사용자가 여러상품 낙찰(낙찰받은 상품)
+        db.Good.hasMany(db.Auction);
     }
-};
+}
